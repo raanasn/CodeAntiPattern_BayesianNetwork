@@ -1,4 +1,5 @@
-#in wa 9 o 10
+
+#az diff check
 #test shabake-bia baze dorost kon wa ran kon
 
 #baad chand barname
@@ -7,17 +8,11 @@
 from pgmpy.models import BayesianModel
 from pgmpy.factors.discrete import TabularCPD
 import pickle
+import numpy as np
 import itertools
-
 
 name="_freemind"
 class_objects = pickle.load(open("classes"+name+".pkl", "rb"))
-
-model = BayesianModel()
-for i in range(1,4):#badsmell
-   for j in range(1,4):#feature
-      model.add_edge('b'+str(i),'f'+str(j)+'_p')
-      model.add_edge('b' + str(i), 'f' + str(j) + '_c')
 
 all_features=[]
 all_smells=[]
@@ -38,31 +33,89 @@ for class_ in class_objects:
 
 max = [max(i) for i in itertools.zip_longest(*all_features, fillvalue = 0)]
 min = [min(i) for i in itertools.zip_longest(*all_features, fillvalue = 0)]
+diff= [(i-j)*0.5 for i,j in zip(max,min)]
+
+# 0 T T T
+# 1 T T F
+# 2 T F T
+# 3 T F F
+# 4 F T T
+# 5 F T F
+# 6 F F T
+# 7 F F F
+
+table_true=[[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0]] #smells
+table_false=[[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0]]
+
+table_high=[0,0,0]#features
+table_low=[0,0,0]
+for f,b in zip(all_features,all_smells):
+   for i in range(3):#smells
+      if f[0]>=diff[0]:
+         table_high[0]=table_high[0]+1
+         if f[1]>=diff[1]:
+            table_high[1] = table_high[1] + 1
+            if f[2]>=diff[2]:
+               table_high[2] = table_high[2] + 1
+               table_true[i][0]=table_true[i][0]+b[i]
+               table_false[i][0] = table_false[i][0] + (b[i]-1)*(-1)
+            else:
+               table_low[2] = table_low[2] + 1
+               table_true[i][1]=table_true[i][1]+b[i]
+               table_false[i][0] = table_false[i][0] + (b[i] - 1) * (-1)
+         else:
+            table_low[1] = table_low[1] + 1
+            if f[2]>=diff[2]:
+               table_high[2] = table_high[2] + 1
+               table_true[i][2]=table_true[i][2]+b[i]
+               table_false[i][0] = table_false[i][0] + (b[i] - 1) * (-1)
+            else:
+               table_low[2] = table_low[2] + 1
+               table_true[i][3]=table_true[i][3]+b[i]
+               table_false[i][0] = table_false[i][0] + (b[i] - 1) * (-1)
+      else:
+         table_low[0] = table_low[0] + 1
+         if f[1]>=diff[1]:
+            table_high[1] = table_high[1] + 1
+            if f[2]>=diff[2]:
+               table_high[2] = table_high[2] + 1
+               table_true[i][4]=table_true[i][4]+b[i]
+               table_false[i][0] = table_false[i][0] + (b[i] - 1) * (-1)
+            else:
+               table_low[2] = table_low[2] + 1
+               table_true[i][5]=table_true[i][5]+b[i]
+               table_false[i][0] = table_false[i][0] + (b[i] - 1) * (-1)
+         else:
+            table_low[1] = table_low[1] + 1
+            if f[2]>=diff[2]:
+               table_high[2] = table_high[2] + 1
+               table_true[i][6]=table_true[i][6]+b[i]
+               table_false[i][0] = table_false[i][0] + (b[i] - 1) * (-1)
+            else:
+               table_low[2] = table_low[2] + 1
+               table_true[i][7]=table_true[i][7]+b[i]
+               table_false[i][0] = table_false[i][0] + (b[i] - 1) * (-1)
+
+#between 0 and 1
+len=len(class_objects)
+table_high[:] = [x / len for x in table_high]
+table_low[:] = [x / len for x in table_low]
+table_t=(np.array(table_true)/len).tolist()
+table_f =(np.array(table_false)/len).tolist()
+
+model = BayesianModel()
+for i in range(1, 4):  # badsmell
+   for j in range(1, 4):  # feature
+      model.add_edge('b' + str(i), 'f' + str(j))
 
 cpds=[]
-for f,b in zip(all_features,all_smells):
-   for i in range(3):#features
-      high=0
-      low=0
-      if  f[i]>=(max[i]*0.5):
-         high=high+1
-      else:
-         low=low+1
-      cpds.append(TabularCPD('f_'+str(i), 2, [[high], [low]]))
-'''for i in range(0,3):
-   max_=max(c.features[i] for c in class_objects)
-   min_=min(c.features[i] for c in class_objects)
-   diff=max_-min_
-   high, med_h, med_l,low=0
-   for c in class_objects:
-      if c.features[i]>=diff*0.5:
-         high=high+1
-      else:
-         low=low+1
-   elif c.features[i]>diff*0.5:
-           med_h=med_h+1
-      elif c.features[i]>diff*0.25:
-           med_l=med_l+1
-   cpds.append([high,low])'''
+for i in range(3): #features
+   model.add_cpds(TabularCPD('f'+str(i+1), 2, [[table_high[i]], [table_low[i]]]))
 
-#cpd_b1 = TabularCPD('b1', 2, [[0.4], [0.6]])#WTF
+for i in range(3): #smells
+   model.add_cpds(TabularCPD(
+         'b'+str(i+1), 2,
+         [table_t[i], table_f[i]],
+         evidence=['f1', 'f2','f3'],
+         evidence_card=[2, 2, 2])
+         )
