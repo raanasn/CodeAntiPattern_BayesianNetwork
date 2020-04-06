@@ -1,6 +1,5 @@
 
-#az diff check
-#test shabake-bia baze dorost kon wa ran kon
+#fit wa predict
 
 #baad chand barname
 #baad bad smell ezafe
@@ -62,17 +61,17 @@ for f,b in zip(all_features,all_smells):
             else:
                table_low[2] = table_low[2] + 1
                table_true[i][1]=table_true[i][1]+b[i]
-               table_false[i][0] = table_false[i][0] + (b[i] - 1) * (-1)
+               table_false[i][1] = table_false[i][1] + (b[i] - 1) * (-1)
          else:
             table_low[1] = table_low[1] + 1
             if f[2]>=diff[2]:
                table_high[2] = table_high[2] + 1
                table_true[i][2]=table_true[i][2]+b[i]
-               table_false[i][0] = table_false[i][0] + (b[i] - 1) * (-1)
+               table_false[i][2] = table_false[i][2] + (b[i] - 1) * (-1)
             else:
                table_low[2] = table_low[2] + 1
                table_true[i][3]=table_true[i][3]+b[i]
-               table_false[i][0] = table_false[i][0] + (b[i] - 1) * (-1)
+               table_false[i][3] = table_false[i][3] + (b[i] - 1) * (-1)
       else:
          table_low[0] = table_low[0] + 1
          if f[1]>=diff[1]:
@@ -80,38 +79,38 @@ for f,b in zip(all_features,all_smells):
             if f[2]>=diff[2]:
                table_high[2] = table_high[2] + 1
                table_true[i][4]=table_true[i][4]+b[i]
-               table_false[i][0] = table_false[i][0] + (b[i] - 1) * (-1)
+               table_false[i][4] = table_false[i][4] + (b[i] - 1) * (-1)
             else:
                table_low[2] = table_low[2] + 1
                table_true[i][5]=table_true[i][5]+b[i]
-               table_false[i][0] = table_false[i][0] + (b[i] - 1) * (-1)
+               table_false[i][5] = table_false[i][5] + (b[i] - 1) * (-1)
          else:
             table_low[1] = table_low[1] + 1
             if f[2]>=diff[2]:
                table_high[2] = table_high[2] + 1
                table_true[i][6]=table_true[i][6]+b[i]
-               table_false[i][0] = table_false[i][0] + (b[i] - 1) * (-1)
+               table_false[i][6] = table_false[i][6] + (b[i] - 1) * (-1)
             else:
                table_low[2] = table_low[2] + 1
                table_true[i][7]=table_true[i][7]+b[i]
-               table_false[i][0] = table_false[i][0] + (b[i] - 1) * (-1)
+               table_false[i][7] = table_false[i][7] + (b[i] - 1) * (-1)
 
 #between 0 and 1
 len=len(class_objects)
-table_high[:] = [x / len for x in table_high]
-table_low[:] = [x / len for x in table_low]
+table_high[:] = [x / (3*len) for x in table_high]
+table_low[:] = [x / (3*len) for x in table_low]
 table_t=(np.array(table_true)/len).tolist()
 table_f =(np.array(table_false)/len).tolist()
 
 model = BayesianModel()
 for i in range(1, 4):  # badsmell
    for j in range(1, 4):  # feature
-      model.add_edge('b' + str(i), 'f' + str(j))
+      model.add_edge('f' + str(j), 'b' + str(i))
 
 cpds=[]
 for i in range(3): #features
    model.add_cpds(TabularCPD('f'+str(i+1), 2, [[table_high[i]], [table_low[i]]]))
-
+print(table_t[0],table_f[0])
 for i in range(3): #smells
    model.add_cpds(TabularCPD(
          'b'+str(i+1), 2,
@@ -119,3 +118,6 @@ for i in range(3): #smells
          evidence=['f1', 'f2','f3'],
          evidence_card=[2, 2, 2])
          )
+print(model.get_cpds())
+print(model.edges())
+print(model.check_model())
