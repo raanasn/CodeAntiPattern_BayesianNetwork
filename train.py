@@ -96,11 +96,11 @@ for f,b in zip(all_features,all_smells):
                table_false[i][7] = table_false[i][7] + (b[i] - 1) * (-1)
 
 #between 0 and 1
-len=len(class_objects)
-table_high[:] = [x / (3*len) for x in table_high]
-table_low[:] = [x / (3*len) for x in table_low]
-table_t=(np.array(table_true)/len).tolist()
-table_f =(np.array(table_false)/len).tolist()
+len_=len(class_objects)
+table_high[:] = [x / (3*len_) for x in table_high]
+table_low[:] = [x / (3*len_) for x in table_low]
+table_t=(np.array(table_true)/len_).tolist()
+table_f =(np.array(table_false)/len_).tolist()
 
 model = BayesianModel()
 for i in range(1, 4):  # badsmell
