@@ -1,12 +1,19 @@
-import pickle
+# idee: train ru faghat unhayi ke daran ya mosavi
+#       train barname be barname
+#       train hame barname
+#       train bar asas f1, f1 o f2, ..
+# Akhar sar bad smell ezafe
+
 import itertools
 import pandas as pd
 from pgmpy.models import BayesianModel
+from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score
+import pickle
 
 
 #initialization
-len_f=0
-len_bs=0
+len_f=3
+len_bs=3
 
 #Reading Data
 name="_freemind"
@@ -44,17 +51,24 @@ for f in all_features:
             features[i].append(0)
 
 
-data = pd.DataFrame(data={'f1': features[0], 'f2': features[1], 'f3': features[2],
+values = pd.DataFrame(data={'f1': features[0], 'f2': features[1], 'f3': features[2],
                           'b1': all_smells[0],'b2': all_smells[1], 'b3': all_smells[2]})
 
 model = BayesianModel()
-for i in range(1, len_bs):  # badsmell
-   for j in range(1, len_f):  # feature
+for i in range(1, len_bs+1):  # badsmell
+   for j in range(1, len_f+1):  # feature
       model.add_edge('f' + str(j), 'b' + str(i))
 
-model.fit(data)
-model.get_cpds()
+train_data = values[:350]
+test_data  = values[350:]
+predict_data = test_data.copy()
+predict_data.drop(['b1','b2','b3'], axis=1, inplace=True)
+test_data.drop(['f1','f2','f3'], axis=1, inplace=True)
+model.fit(train_data)
+y_pred = model.predict(predict_data)
 
-print(model.get_cpds())
-print(model.edges())
-print(model.check_model())
+print("Acc: ",accuracy_score(test_data,y_pred))
+print("Precision: ",precision_score(test_data,y_pred,average=None))
+print("Recall: ",recall_score(test_data,y_pred,average=None))
+
+

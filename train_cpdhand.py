@@ -1,9 +1,3 @@
-
-#fit wa predict
-
-#baad chand barname
-#baad bad smell ezafe
-
 from pgmpy.models import BayesianModel
 from pgmpy.factors.discrete import TabularCPD
 import pickle
