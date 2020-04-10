@@ -48,10 +48,12 @@ def get_features(rel,class_properties,wb):
 	cp=class_properties[9]
 	
 	#cycle
-	cycle=False
+	cycle=0
 	for r in rel:
 		if r[1] == r[2]:
-			cycle=True
+			cycle=1
+			print(class_properties[2])
+			break
 
 	#Bad Smells
 	#GodCLass - name of the classes with smell
@@ -67,7 +69,7 @@ def get_features(rel,class_properties,wb):
 			if badsmells[item-1]==1:
 				break
 	
-	print("AMW, DIT, NOM, LCOM, REL, DAM ,NAM, CP, CYCLE, BADSMELLS")
+	#print("AMW, DIT, NOM, LCOM, REL, DAM ,NAM, CP, CYCLE, BADSMELLS")
 			
 	features=[amw,dit,nom,lcom,relation,dam,nam,cp,cycle,badsmells]
 	return features
