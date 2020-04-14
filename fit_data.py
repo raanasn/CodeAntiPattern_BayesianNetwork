@@ -1,18 +1,15 @@
-# mishe marze predict ro taghir dad / marze diff
-# train bar asas mix f1, f1 o f2,
-# Akhar sar bad smell ezafe
-
 import itertools
 import pandas as pd
 from pgmpy.models import BayesianModel
 from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score
 import pickle
 
-def test_data(len_f,diff_precent,accuracy):
-    #initialization
-    #f_len is in the first loop 9
-    len_bs=3
+def test_data(len_f,diff_precent,accuracy,f_number,properties):#len_f=special range, f_number=special f
 
+    #feature set is devided by hand
+    #f_len is in the first loop written with hand (9)
+    #len_bs is just in the model written with hand
+    len_bs = 3
 
     #Reading Data
     name="_freemind"
@@ -25,6 +22,13 @@ def test_data(len_f,diff_precent,accuracy):
        kasr=0
        zarib=[]
        f=[]
+       if properties=="smells":
+           flag=False
+           for s in range(len_bs):
+               if class_.features[9][s]==1:
+                   flag=True
+           if flag==False:
+               continue
        for parent in class_.parents:
           kasr=parent[1].weight + kasr #has to go one round alone
           zarib.append(parent[1].weight)
@@ -54,9 +58,22 @@ def test_data(len_f,diff_precent,accuracy):
             else:
                 features[i].append(0)
 
+    if len_f == 0:
+        for f in all_features:
+            if f[f_number] >= diff[f_number]:
+                features.append(1)
+            else:
+                features.append(0)
+
+
+
     values=pd.DataFrame(data={'b0': all_smells[0],'b1': all_smells[1],'b2':all_smells[2]})
     for i in range(len_f):
         d=pd.DataFrame({'f'+str(i):features[i]})
+        values = pd.concat([values, d], axis=1)
+
+    if len_f==0:
+        d = pd.DataFrame({'f' + str(f_number): features})
         values = pd.concat([values, d], axis=1)
 
     model = BayesianModel()
@@ -64,20 +81,28 @@ def test_data(len_f,diff_precent,accuracy):
         for j in range(len_f):  # feature
             model.add_edge('f' + str(j), 'b'+str(i))
 
-    train_data = values[:350]
-    test_data  = values[350:]
+    if len_f==0:
+        for i in range(len_bs):
+            model.add_edge('f' + str(f_number), 'b' + str(i))
+
+    train_data = values[:100]
+    test_data  = values[100:]
     predict_data = test_data.copy()
     predict_data.drop(['b0','b1','b2'], axis=1, inplace=True)
     for i in range(len_f):
         test_data.drop(['f'+str(i)],axis=1,inplace=True)
+    if len_f == 0:
+        test_data.drop(['f' + str(f_number)], axis=1, inplace=True)
+
     model.fit(train_data)
 
     y_pred = model.predict(predict_data)
     precent_pred=model.predict_probability(predict_data)
     res=[]
+
     for i in range(len_bs):
         res.append([])
-        res[i].append(str(accuracy)+""+str(diff_precent)+""+"b"+str(i))
+        res[i].append(str(len_f)+" "+str(f_number)+" "+str(accuracy)+" "+str(diff_precent)+" "+"b"+str(i))
         res[i].append(accuracy_score(test_data['b'+str(i)],y_pred['b'+str(i)]))
         res[i].append(precision_score(test_data['b'+str(i)],y_pred['b'+str(i)],average=accuracy))
         res[i].append(recall_score(test_data['b'+str(i)],y_pred['b'+str(i)],average=accuracy))
