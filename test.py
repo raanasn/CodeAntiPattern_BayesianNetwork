@@ -7,11 +7,18 @@
 import os, time
 from fit_data import test_data
 
-res=[]
-
 #(len f, percent, accuracy, [] f, data)
-# (0)1-9   0.  weighted-macro-micro 0-8 all-smells-equal
-res.append(test_data(0, 0.5, None, [2,3],"none"))
+# (0)1-9   0.  weighted-macro-micro [0-8]  smells/equal/none
+res=test_data(9, 0.25, None, [],"equal")
 print(res)
+res=test_data(9, 0.50, None, [],"equal")
+print(res)
+res=test_data(9, 0.60, None, [],"equal")
+print(res)
+res=test_data(9, 0.70, None, [],"equal")
+print(res)
+
+#recall/precision
+#array([,specifity(0)]) array([,sensitivity(1)])
 os.system('mpg123 Input/fuehlen.mp3')
 

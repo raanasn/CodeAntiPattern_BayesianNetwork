@@ -1,8 +1,96 @@
 import itertools
 import pandas as pd
+import numpy as np
 from pgmpy.models import BayesianModel
 from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score
 import pickle
+
+def shuffle(df, n=1, axis=0):
+    df = df.copy()
+    for _ in range(n):
+        df.apply(np.random.shuffle, axis=axis)
+    return df
+
+def model(features,all_smells,properties,len_bs,len_f,f_number,accuracy,diff_precent):
+    if properties=="equal":
+        values = pd.DataFrame(data={'b': all_smells})
+    else:
+        values=pd.DataFrame(data={'b0': all_smells[0],'b1': all_smells[1],'b2':all_smells[2]})
+
+    if f_number!=[]:
+        for i,j in zip(f_number,range(len(features))):
+            d = pd.DataFrame({'f' + str(i): features[j]})
+            values = pd.concat([values, d], axis=1)
+    else:
+        for i in range(len_f):
+            d=pd.DataFrame({'f'+str(i):features[i]})
+            values = pd.concat([values, d], axis=1)
+
+    model = BayesianModel()
+    if f_number!=[]:
+        for i in range(len_bs):
+            for j in f_number:
+                model.add_edge('f' + str(j), 'b' + str(i))
+    elif properties!="equal":
+        for i in range(len_bs):  # badsmell
+            for j in range(len_f):  # feature
+                model.add_edge('f' + str(j), 'b'+str(i))
+    elif properties=="equal":
+        for j in range(len_f):  # feature
+            model.add_edge('f' + str(j), 'b')
+
+    values=shuffle(values)
+    train_data = values[:int((len(all_smells)*0.7))]
+    test_data  = values[int((len(all_smells)*0.7)):]
+    predict_data = test_data.copy()
+
+    delete=[]
+    for f in range(len_f):
+        if (train_data['f'+str(f)] == 0).all():
+            delete.append(f)
+    for item in delete:
+        del train_data['f'+str(item)]
+        del predict_data['f' + str(item)]
+        model.remove_node('f'+str(item))
+
+    if f_number!=[]:
+        predict_data.drop(['b0', 'b1', 'b2'], axis=1, inplace=True)
+        for i in f_number:
+            test_data.drop(['f' + str(i)], axis=1, inplace=True)
+    elif properties!="equal":
+        predict_data.drop(['b0','b1','b2'], axis=1, inplace=True)
+        for i in range(len_f):
+            test_data.drop(['f' + str(i)], axis=1, inplace=True)
+    elif properties=="equal":
+        predict_data.drop(['b'], axis=1, inplace=True)
+        for i in range(len_f):
+            test_data.drop(['f' + str(i)], axis=1, inplace=True)
+
+    model.fit(train_data)
+
+    y_pred = model.predict(predict_data)
+    precent_pred=model.predict_probability(predict_data)
+    res=[]
+
+    if properties=="equal":
+        res.append(str(len_f) + " " + str(f_number) + " " + str(accuracy) + " " + str(diff_precent) + " " + "b")
+        res.append(accuracy_score(test_data['b'], y_pred['b']))
+        res.append(precision_score(test_data['b'], y_pred['b'], average=accuracy))
+        res.append(recall_score(test_data['b'], y_pred['b'], average=accuracy))
+        '''print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+        for ((index, row),(index2,row2)) in zip(test_data.iterrows(), y_pred.iterrows()):
+            print(row['b'],row2['b'])
+            print("***********")'''
+        return res
+    for i in range(len_bs):
+        res.append([])
+        res[i].append(str(len_f)+" "+str(f_number)+" "+str(accuracy)+" "+str(diff_precent)+" "+"b"+str(i))
+        res[i].append(accuracy_score(test_data['b'+str(i)],y_pred['b'+str(i)]))
+        res[i].append(precision_score(test_data['b'+str(i)],y_pred['b'+str(i)],average=accuracy))
+        res[i].append(recall_score(test_data['b'+str(i)],y_pred['b'+str(i)],average=accuracy))
+    return res
+
+
 
 def test_data(len_f,diff_precent,accuracy,f_number,properties):#len_f=special range, f_number=special f
 
@@ -42,38 +130,51 @@ def test_data(len_f,diff_precent,accuracy,f_number,properties):#len_f=special ra
        all_features.append(f)
        for bs in range(len_bs):
             all_smells[bs].append(class_.features[9][bs])
-####
-    sum_=[sum(i) for i in itertools.zip_longest(*all_features, fillvalue = 0)]
+
+    sum_=[sum(i) for i in all_smells]
+    equal_features = []
+    equal_smells=[]
+    for item in all_smells:
+        equal_smells.append(item)
     if properties=="equal":
         delete=[]
-        for item in len_bs:
+        for item in range(len_bs):
             delete.append([])
         for bs in range(len_bs):
             count=0
-            for i in range(all_smells):
-                if count>sum[bs]:
+            for i in range(len(all_smells[0])):
+                if count>sum_[bs] and all_smells[bs][i]==0:
                     delete[bs].append(i)
-                if all_smells[i][bs]==0:
+                elif all_smells[bs][i]==0:
                     count+=1
-        #baadeshdelete
-###
+        for d,fi,b in zip(delete,range(len_bs),equal_smells):
+            feat=all_features.copy()
+            for item in reversed(d):
+                del feat[item]
+                del b[item]
+            equal_features.append(feat)
 
-    max_ = [max(i) for i in itertools.zip_longest(*all_features, fillvalue = 0)]
-    min_ = [min(i) for i in itertools.zip_longest(*all_features, fillvalue = 0)]
-    diff= [(i-j)*diff_precent for i,j in zip(max_,min_)]
+    max_=[]
+    min_=[]
+    diff=[]
+    if properties=="equal":
+        for item in equal_features:
+            ma = [max(i) for i in itertools.zip_longest(*item, fillvalue = 0)]
+            mi = [min(i) for i in itertools.zip_longest(*item, fillvalue = 0)]
+            dif= [(i-j)*diff_precent for i,j in zip(ma,mi)]
+            max_.append(ma)
+            min_.append(mi)
+            diff.append(dif)
+    else:
+        max_ = [max(i) for i in itertools.zip_longest(*all_features, fillvalue=0)]
+        min_ = [min(i) for i in itertools.zip_longest(*all_features, fillvalue=0)]
+        diff = [(i - j) * diff_precent for i, j in zip(max_, min_)]
 
     features=[]
-    for i in range(len_f):
-        features.append([])
+    equal_f = []
+    res = []
 
-    for f in all_features:
-        for i in range(len_f):
-            if f[i] >= diff[i]:
-                features[i].append(1)
-            else:
-                features[i].append(0)
-
-    if len_f == 0:
+    if f_number!=[]:
         for i in range(len(f_number)):
             features.append([])
         arr=len(features)
@@ -83,53 +184,34 @@ def test_data(len_f,diff_precent,accuracy,f_number,properties):#len_f=special ra
                     features[ar].append(1)
                 else:
                     features[ar].append(0)
+        res = model(features, all_smells, properties, len_bs, len_f, f_number, accuracy, diff_precent)
+        return res
+    elif properties != "equal":
+        for i in range(len_f):
+            features.append([])
+        for f in all_features:
+            for i in range(len_f):
+                if f[i] >= diff[i]:
+                    features[i].append(1)
+                else:
+                    features[i].append(0)
+        res=model(features,all_smells,properties,len_bs,len_f,f_number,accuracy,diff_precent)
+        return res
+    elif properties == "equal":
+        for i in range(len_f):
+            features.append([])
+        for fb,bs in zip(equal_features,range(len_bs)):
+            for fea in fb:
+                for i in range(len_f):
+                    if fea[i] >= diff[bs][i]:
+                        features[i].append(1)
+                    else:
+                        features[i].append(0)
+            equal_f.append(features.copy())
+            for i in range(len_f):
+                features[i]=[]
 
-
-    values=pd.DataFrame(data={'b0': all_smells[0],'b1': all_smells[1],'b2':all_smells[2]})
-    for i in range(len_f):
-        d=pd.DataFrame({'f'+str(i):features[i]})
-        values = pd.concat([values, d], axis=1)
-
-    if len_f==0:
-        for i,j in zip(f_number,range(len(features))):
-            d = pd.DataFrame({'f' + str(i): features[j]})
-            values = pd.concat([values, d], axis=1)
-
-    model = BayesianModel()
-    for i in range(len_bs):  # badsmell
-        for j in range(len_f):  # feature
-            model.add_edge('f' + str(j), 'b'+str(i))
-
-    if len_f==0:
-        for i in range(len_bs):
-            for j in f_number:
-                model.add_edge('f' + str(j), 'b' + str(i))
-
-    train_data = values[:350]
-    test_data  = values[350:]
-    predict_data = test_data.copy()
-    predict_data.drop(['b0','b1','b2'], axis=1, inplace=True)
-    for i in range(len_f):
-        test_data.drop(['f'+str(i)],axis=1,inplace=True)
-    if len_f == 0:
-        for i in f_number:
-            test_data.drop(['f' + str(i)], axis=1, inplace=True)
-
-    model.fit(train_data)
-
-    y_pred = model.predict(predict_data)
-    precent_pred=model.predict_probability(predict_data)
-    res=[]
-
-    for i in range(len_bs):
-        res.append([])
-        res[i].append(str(len_f)+" "+str(f_number)+" "+str(accuracy)+" "+str(diff_precent)+" "+"b"+str(i))
-        res[i].append(accuracy_score(test_data['b'+str(i)],y_pred['b'+str(i)]))
-        res[i].append(precision_score(test_data['b'+str(i)],y_pred['b'+str(i)],average=accuracy))
-        res[i].append(recall_score(test_data['b'+str(i)],y_pred['b'+str(i)],average=accuracy))
-
-    '''for i in range(100,len(y_pred)+100):
-        print(test_data.loc[[i]])
-        print(y_pred.loc[[i]])
-        print("***********")'''
-    return res
+        res.append(model(equal_f[0], equal_smells[0], properties, len_bs, len_f, f_number, accuracy, diff_precent))
+        res.append(model(equal_f[1], equal_smells[1], properties, len_bs, len_f, f_number, accuracy, diff_precent))
+        res.append(model(equal_f[2], equal_smells[2], properties, len_bs, len_f, f_number, accuracy, diff_precent))
+        return res
