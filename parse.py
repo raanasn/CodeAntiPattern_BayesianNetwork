@@ -36,7 +36,7 @@ def parseXMI(my_file):
 			att_count=att_count+1
 	### find operations of class
 		for ope in element.getElementsByTagName("UML:Operation"):
-			if (str(ope.getAttribute('visibility'))=="private") or (str(atr.getAttribute('visibility'))=="protected"):
+			if (str(ope.getAttribute('visibility'))=="private") or (str(ope.getAttribute('visibility'))=="protected"):
 				dam=dam+1
 			elif (str(ope.getAttribute('visibility'))=="public"):
 				op_public=op_public+1
@@ -153,13 +153,13 @@ def parseXMI(my_file):
 	first=True
 	for item in relation:
 		for package in packageList:
-			if (item[1] in package[2] and first==False) or (item[2] in package[2] and first==False):
+			if (item[1] in package[2:] and first==False) or (item[2] in package[2:] and first==False):
 				packageRelation[pCounter].append(package[0])
 				first=True
 				pCounter=pCounter+1
 				packageRelation.append([])
 				break
-			if (item[1] in package[2] and first) or (item[2] in package[2] and first):
+			if (item[1] in package[2:] and first) or (item[2] in package[2:] and first):
 				packageRelation[pCounter].append(package[0])
 				first=False
 
@@ -187,7 +187,7 @@ def parseXMI(my_file):
 		cp=0
 		package_id=""
 		for item in packageList:
-			if classList[i][0] in item[2]:
+			if classList[i][0] in item[2:0]:
 				package_id=item[0]
 				break
 		for item in new_packrel:

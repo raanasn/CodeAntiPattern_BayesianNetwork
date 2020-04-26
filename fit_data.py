@@ -2,13 +2,12 @@ import itertools
 import pickle
 from model import *
 
-def test_data(len_f,diff_precent,accuracy,f_number,properties,split):#len_f=special range, f_number=special f
+def test_data(name,len_f,diff_precent,accuracy,f_number,properties,split):#len_f=special range, f_number=special f
     #f_len is in the first loop written with hand (9)
     #len_bs is written with hand
     len_bs = 3
 
     #Reading Data
-    name="_freemind"
     class_objects = pickle.load(open("classes"+name+".pkl", "rb"))
 
     #Making data ready for Panda

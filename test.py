@@ -1,4 +1,3 @@
-#ezafe kardane barname haye dig
 #cross vaidation
 #excel mostaghim
 
@@ -15,8 +14,8 @@ import os, time
 from fit_data import test_data
 
 #(len f, percent, accuracy, [] f, data, split)
-# (9)1-9   0.  weighted-macro-micro [0-8]  smells/equal/none
-res=test_data(9, 0.25, None, [3,4],"equal",0.7)
+#name (9)1-9   0.  weighted-macro-micro [0-8]  smells/equal/none
+res=test_data("_freemind",9, 0.25, None, [3,4],"equal",0.7)
 print(res)
 
 #recall/precision
