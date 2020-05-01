@@ -1,6 +1,7 @@
 import itertools
 import pickle
 from model import *
+from excel import *
 
 def test_data(name,len_f,diff_precent,accuracy,f_number,properties,split):#len_f=special range, f_number=special f
     #f_len is in the first loop written with hand (9)
@@ -91,7 +92,6 @@ def test_data(name,len_f,diff_precent,accuracy,f_number,properties,split):#len_f
                 else:
                     features[ar].append(0)
         res = model(features, all_smells, properties, len_bs, len_f, f_number, accuracy, diff_precent,split)
-        return res
     elif properties != "equal":
         for i in range(len_f):
             features.append([])
@@ -102,7 +102,6 @@ def test_data(name,len_f,diff_precent,accuracy,f_number,properties,split):#len_f
                 else:
                     features[i].append(0)
         res=model(features,all_smells,properties,len_bs,len_f,f_number,accuracy,diff_precent,split)
-        return res
     elif properties == "equal":
         for i in range(len_f):
             features.append([])
@@ -121,7 +120,7 @@ def test_data(name,len_f,diff_precent,accuracy,f_number,properties,split):#len_f
                 for item in reversed(range(len_f)):
                     if item not in f_number:
                         del equal_f[b][item]
-        res.append(model(equal_f[0], equal_smells[0], properties, len_bs, len_f, f_number, accuracy, diff_precent,split))
-        res.append(model(equal_f[1], equal_smells[1], properties, len_bs, len_f, f_number, accuracy, diff_precent,split))
-        res.append(model(equal_f[2], equal_smells[2], properties, len_bs, len_f, f_number, accuracy, diff_precent,split))
-        return res
+        for number in range(len_bs):
+            res.append(model(equal_f[number], equal_smells[number], properties, len_bs, len_f, f_number, accuracy, diff_precent,split))
+    excel(name,f_number,diff_precent,split,len_bs,res)
+    return

@@ -83,8 +83,7 @@ def model(features,all_smells,properties,len_bs,len_f,f_number,accuracy,diff_pre
 
         if properties=="equal":
             r=[]
-            r.append(str(len_f) + " " + str(f_number) + " " + str(diff_precent) + " " + "cross"+str(cross))
-            r.append(accuracy_score(test_data['b'], y_pred['b']))
+            #r.append("cross"+str(cross))
             r.append(precision_score(test_data['b'], y_pred['b'], average=accuracy))
             r.append(recall_score(test_data['b'], y_pred['b'], average=accuracy))
             res.append(r)
@@ -95,8 +94,6 @@ def model(features,all_smells,properties,len_bs,len_f,f_number,accuracy,diff_pre
         else:
             for i in range(len_bs):
                 res.append([])
-                res[i].append(str(len_f)+" "+str(f_number)+" "+str(accuracy)+" "+str(diff_precent)+" "+"cross"+str(cross))
-                res[i].append(accuracy_score(test_data['b'+str(i)],y_pred['b'+str(i)]))
                 res[i].append(precision_score(test_data['b'+str(i)],y_pred['b'+str(i)],average=accuracy))
                 res[i].append(recall_score(test_data['b'+str(i)],y_pred['b'+str(i)],average=accuracy))
     return res
