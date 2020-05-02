@@ -17,7 +17,6 @@ from fit_data import test_data
 res=test_data("_freemind",9, 0.25, None, [3,4],"equal",5)
 print(res)
 
-#recall/precision
-#array([,specifity(0)]) array([,sensitivity(1)])
+#array([recall0,recall1]) array([precision0,precision1]) (ba inke baraks chap shode)
 os.system('mpg123 Input/fuehlen.mp3')
 
