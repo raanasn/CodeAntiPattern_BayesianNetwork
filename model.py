@@ -3,8 +3,8 @@ import numpy as np
 from pgmpy.models import BayesianModel
 from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score
 
-#bs is written with hand
-#crossed is done by hand
+#!!!bs is written with hand
+#!!!crossed is done by hand
 
 def shuffle(df, n=1, axis=0):
     df = df.copy()
@@ -57,6 +57,7 @@ def model(features,all_smells,properties,len_bs,len_f,f_number,accuracy,diff_pre
         predict_data = test_data.copy()
 
         delete=[]
+        error_res=[]
         if f_number==[]:
             for f in range(len_f):
                 if (train_data['f'+str(f)] == 0).all() or (train_data['f'+str(f)] == 1).all():
@@ -69,6 +70,9 @@ def model(features,all_smells,properties,len_bs,len_f,f_number,accuracy,diff_pre
             del train_data['f'+str(item)]
             del predict_data['f' + str(item)]
             model.remove_node('f'+str(item))
+        #if all fs are deleted or predict has no value
+        if len(train_data.columns)==1 or predict_data.empty:
+            continue
 
         if properties=="equal":
             predict_data.drop(['b'], axis=1, inplace=True)
@@ -86,6 +90,7 @@ def model(features,all_smells,properties,len_bs,len_f,f_number,accuracy,diff_pre
             #r.append("cross"+str(cross))
             r.append(precision_score(test_data['b'], y_pred['b'], average=accuracy))
             r.append(recall_score(test_data['b'], y_pred['b'], average=accuracy))
+            r.append(delete)
             res.append(r)
             '''print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
             for ((index, row),(index2,row2)) in zip(test_data.iterrows(), y_pred.iterrows()):
@@ -96,4 +101,5 @@ def model(features,all_smells,properties,len_bs,len_f,f_number,accuracy,diff_pre
                 res.append([])
                 res[i].append(precision_score(test_data['b'+str(i)],y_pred['b'+str(i)],average=accuracy))
                 res[i].append(recall_score(test_data['b'+str(i)],y_pred['b'+str(i)],average=accuracy))
+                res[i].append(delete)
     return res

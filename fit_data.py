@@ -1,11 +1,11 @@
 import itertools
 import pickle
 from model import *
-from excel import *
+from output import *
 
-def test_data(name,len_f,diff_precent,accuracy,f_number,properties,split):#len_f=special range, f_number=special f
-    #f_len is in the first loop written with hand (9)
-    #len_bs is written with hand
+def test_data(name,len_f,diff_precent,accuracy,f_number,properties,split,sheet):#len_f=special range, f_number=special f
+    #!!!f_len is in the first loop written with hand (9)
+    #!!!len_bs is written with hand
     len_bs = 3
 
     #Reading Data
@@ -122,5 +122,5 @@ def test_data(name,len_f,diff_precent,accuracy,f_number,properties,split):#len_f
                         del equal_f[b][item]
         for number in range(len_bs):
             res.append(model(equal_f[number], equal_smells[number], properties, len_bs, len_f, f_number, accuracy, diff_precent,split))
-    excel(name,f_number,diff_precent,split,len_bs,res)
+    excel(name,f_number,diff_precent,split,len_bs,res,sheet)
     return
