@@ -64,7 +64,7 @@ def model(features,all_smells,properties,len_bs,len_f,f_number,accuracy,diff_pre
                     delete.append(f)
         else:
             for f in f_number:
-                if (train_data['f'+str(f)] == 0).all():
+                if (train_data['f'+str(f)] == 0).all() or (train_data['f'+str(f)] == 1).all():
                     delete.append(f)
         for item in delete:
             del train_data['f'+str(item)]
