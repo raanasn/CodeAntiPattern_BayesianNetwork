@@ -3,7 +3,7 @@ import pickle
 from model import *
 from output import *
 
-def test_data(name,len_f,diff_precent,accuracy,f_number,properties,split,sheet):#len_f=special range, f_number=special f
+def test_data(name,len_f,diff_precent,accuracy,f_number,properties,split,sheet,structure):#len_f=special range, f_number=special f
     #!!!f_len is in the first loop written with hand (9)
     #!!!len_bs is written with hand
     len_bs = 3
@@ -25,15 +25,21 @@ def test_data(name,len_f,diff_precent,accuracy,f_number,properties,split,sheet):
                    flag=True
            if flag==False:
                continue
-       for parent in class_.parents:
+       bayesian_structure=[]
+       if structure == "parent":
+           bayesian_structure=class_.parents
+       else:
+           bayesian_structure=class_.childs
+           print(type(class_.parents))
+       for parent in bayesian_structure:
           kasr=parent[1].weight + kasr #has to go one round alone
           zarib.append(parent[1].weight)
        for i in range(9):#only this one
           foo=0
-          for p,z in zip(class_.parents,zarib):
+          for p,z in zip(bayesian_structure,zarib):
              foo=(p[0].features[i]*z/kasr)+foo
           f.append(foo)
-       if class_.features[8] == 1:#cycle (its his issue not his parents)
+       if class_.features[8] == 1:#cycle (its his issue not his parents or childs)
            f[8]=1
        all_features.append(f)
        for bs in range(len_bs):
@@ -91,7 +97,7 @@ def test_data(name,len_f,diff_precent,accuracy,f_number,properties,split,sheet):
                     features[ar].append(1)
                 else:
                     features[ar].append(0)
-        res = model(features, all_smells, properties, len_bs, len_f, f_number, accuracy, diff_precent,split)
+        res = model(features, all_smells, properties, len_bs, len_f, f_number, accuracy, diff_precent,split,structure)
     elif properties != "equal":
         for i in range(len_f):
             features.append([])
@@ -101,7 +107,7 @@ def test_data(name,len_f,diff_precent,accuracy,f_number,properties,split,sheet):
                     features[i].append(1)
                 else:
                     features[i].append(0)
-        res=model(features,all_smells,properties,len_bs,len_f,f_number,accuracy,diff_precent,split)
+        res=model(features,all_smells,properties,len_bs,len_f,f_number,accuracy,diff_precent,split,structure)
     elif properties == "equal":
         for i in range(len_f):
             features.append([])
@@ -121,6 +127,6 @@ def test_data(name,len_f,diff_precent,accuracy,f_number,properties,split,sheet):
                     if item not in f_number:
                         del equal_f[b][item]
         for number in range(len_bs):
-            res.append(model(equal_f[number], equal_smells[number], properties, len_bs, len_f, f_number, accuracy, diff_precent,split))
+            res.append(model(equal_f[number], equal_smells[number], properties, len_bs, len_f, f_number, accuracy, diff_precent,split,structure))
     excel(name,f_number,diff_precent,split,len_bs,res,sheet)
     return

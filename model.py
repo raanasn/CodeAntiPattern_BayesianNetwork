@@ -12,7 +12,7 @@ def shuffle(df, n=1, axis=0):
         df.apply(np.random.shuffle, axis=axis)
     return df
 
-def model(features,all_smells,properties,len_bs,len_f,f_number,accuracy,diff_precent,split):
+def model(features,all_smells,properties,len_bs,len_f,f_number,accuracy,diff_precent,split,structure):
     if properties=="equal":
         values = pd.DataFrame(data={'b': all_smells})
     else:
@@ -36,17 +36,29 @@ def model(features,all_smells,properties,len_bs,len_f,f_number,accuracy,diff_pre
         if f_number != [] and properties != "equal":
             for i in range(len_bs):
                 for j in f_number:
-                    model.add_edge('f' + str(j), 'b' + str(i))
+                    if structure=="parent":
+                        model.add_edge('f' + str(j), 'b' + str(i))
+                    else:
+                        model.add_edge('b' + str(i), 'f' + str(j))
         elif properties != "equal":
             for i in range(len_bs):  # badsmell
                 for j in range(len_f):  # feature
-                    model.add_edge('f' + str(j), 'b' + str(i))
+                    if structure=="parent":
+                        model.add_edge('f' + str(j), 'b' + str(i))
+                    else:
+                        model.add_edge('b' + str(i), 'f' + str(j))
         elif f_number == [] and properties == "equal":
             for j in range(len_f):  # feature
-                model.add_edge('f' + str(j), 'b')
+                if structure=="parent":
+                    model.add_edge('f' + str(j), 'b')
+                else:
+                    model.add_edge('b', 'f'+ str(j))
         elif f_number != [] and properties == "equal":
             for j in f_number:  # feature
-                model.add_edge('f' + str(j), 'b')
+                if structure=="parent":
+                    model.add_edge('f' + str(j), 'b')
+                else:
+                    model.add_edge('b', 'f' + str(j))
 
         test_data=crossed[cross]
         train_data=pd.DataFrame()
