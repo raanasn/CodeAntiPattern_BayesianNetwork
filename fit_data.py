@@ -7,7 +7,7 @@ def test_data(name,len_f,diff_precent,accuracy,f_number,properties,split,sheet,s
     #!!!f_len is in the first loop written with hand (9)
     #!!!len_bs is written with hand
     len_bs = 3
-
+    other_structure = []
     #Reading Data
     class_objects = pickle.load(open("classes"+name+".pkl", "rb"))
 
@@ -26,11 +26,10 @@ def test_data(name,len_f,diff_precent,accuracy,f_number,properties,split,sheet,s
            if flag==False:
                continue
        bayesian_structure=[]
-       if structure == "parent":
-           bayesian_structure=class_.parents
-       else:
+       if structure == "child" or structure=="child2":
            bayesian_structure=class_.childs
-           print(type(class_.parents))
+       else:
+           bayesian_structure=class_.parents
        for parent in bayesian_structure:
           kasr=parent[1].weight + kasr #has to go one round alone
           zarib.append(parent[1].weight)
@@ -97,7 +96,11 @@ def test_data(name,len_f,diff_precent,accuracy,f_number,properties,split,sheet,s
                     features[ar].append(1)
                 else:
                     features[ar].append(0)
-        res = model(features, all_smells, properties, len_bs, len_f, f_number, accuracy, diff_precent,split,structure)
+        if structure=="child2":
+            return features
+        elif structure=="both":
+            other_structure = test_data(name, len_f, diff_precent, accuracy, f_number, properties, split, sheet,"child2")
+        res = model(features, all_smells, properties, len_bs, len_f, f_number, accuracy,split,structure,other_structure)
     elif properties != "equal":
         for i in range(len_f):
             features.append([])
@@ -107,7 +110,11 @@ def test_data(name,len_f,diff_precent,accuracy,f_number,properties,split,sheet,s
                     features[i].append(1)
                 else:
                     features[i].append(0)
-        res=model(features,all_smells,properties,len_bs,len_f,f_number,accuracy,diff_precent,split,structure)
+        if structure=="child2":
+            return features
+        elif structure=="both":
+            other_structure = test_data(name, len_f, diff_precent, accuracy, f_number, properties, split, sheet,"child2")
+        res=model(features,all_smells,properties,len_bs,len_f,f_number,accuracy,split,structure,other_structure)
     elif properties == "equal":
         for i in range(len_f):
             features.append([])
@@ -126,7 +133,15 @@ def test_data(name,len_f,diff_precent,accuracy,f_number,properties,split,sheet,s
                 for item in reversed(range(len_f)):
                     if item not in f_number:
                         del equal_f[b][item]
+        child_feature=[]
         for number in range(len_bs):
-            res.append(model(equal_f[number], equal_smells[number], properties, len_bs, len_f, f_number, accuracy, diff_precent,split,structure))
+            if structure == "child2":
+                child_feature.append(equal_f[number])
+            elif structure == "both":
+                other_structure = test_data(name, len_f, diff_precent, accuracy, f_number, properties, split, sheet,"child2")
+            if structure!="child2":
+                res.append(model(equal_f[number], equal_smells[number], properties, len_bs, len_f, f_number, accuracy,split,structure,other_structure[number]))
+        if structure=="child2":
+            return child_feature
     excel(name,f_number,diff_precent,split,len_bs,res,sheet)
     return

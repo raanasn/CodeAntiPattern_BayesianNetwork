@@ -12,7 +12,7 @@ def shuffle(df, n=1, axis=0):
         df.apply(np.random.shuffle, axis=axis)
     return df
 
-def model(features,all_smells,properties,len_bs,len_f,f_number,accuracy,diff_precent,split,structure):
+def model(features,all_smells,properties,len_bs,len_f,f_number,accuracy,split,structure,other_features):
     if properties=="equal":
         values = pd.DataFrame(data={'b': all_smells})
     else:
@@ -22,10 +22,16 @@ def model(features,all_smells,properties,len_bs,len_f,f_number,accuracy,diff_pre
         for i,j in zip(f_number,range(len(features))):
             d = pd.DataFrame({'f' + str(i): features[j]})
             values = pd.concat([values, d], axis=1)
+            if structure=="both" and other_features!=[[]]:
+                d2 = pd.DataFrame({'c' + str(i): other_features[j]})
+                values = pd.concat([values, d2], axis=1)
     else:
         for i in range(len_f):
             d=pd.DataFrame({'f'+str(i):features[i]})
             values = pd.concat([values, d], axis=1)
+            if structure=="both" and other_features!=[[]]:
+                d2 = pd.DataFrame({'c' + str(i): other_features[i]})
+                values = pd.concat([values, d2], axis=1)
 
     values=shuffle(values)
     crossed = np.split(values.sample(frac=1),
@@ -36,29 +42,41 @@ def model(features,all_smells,properties,len_bs,len_f,f_number,accuracy,diff_pre
         if f_number != [] and properties != "equal":
             for i in range(len_bs):
                 for j in f_number:
-                    if structure=="parent":
-                        model.add_edge('f' + str(j), 'b' + str(i))
-                    else:
+                    if structure=="child":
                         model.add_edge('b' + str(i), 'f' + str(j))
+                    elif structure=="parent" or other_features==[[]]:
+                        model.add_edge('f' + str(j), 'b' + str(i))
+                    elif structure =="both":
+                        model.add_edge('f' + str(j), 'b' + str(i))
+                        model.add_edge('b' + str(j), 'c' + str(i))
         elif properties != "equal":
             for i in range(len_bs):  # badsmell
                 for j in range(len_f):  # feature
-                    if structure=="parent":
-                        model.add_edge('f' + str(j), 'b' + str(i))
-                    else:
+                    if structure=="child":
                         model.add_edge('b' + str(i), 'f' + str(j))
+                    elif structure=="parent" or other_features==[[]]:
+                        model.add_edge('f' + str(j), 'b' + str(i))
+                    elif structure=="both":
+                        model.add_edge('f' + str(j), 'b' + str(i))
+                        model.add_edge('b' + str(j), 'c' + str(i))
         elif f_number == [] and properties == "equal":
             for j in range(len_f):  # feature
-                if structure=="parent":
+                if structure=="child":
+                    model.add_edge('b', 'f' + str(j))
+                elif structure=="parent" or other_features==[[]]:
                     model.add_edge('f' + str(j), 'b')
-                else:
-                    model.add_edge('b', 'f'+ str(j))
+                elif structure=="both":
+                    model.add_edge('f' + str(j), 'b')
+                    model.add_edge('b', 'c' + str(j))
         elif f_number != [] and properties == "equal":
             for j in f_number:  # feature
-                if structure=="parent":
-                    model.add_edge('f' + str(j), 'b')
-                else:
+                if structure=="child":
                     model.add_edge('b', 'f' + str(j))
+                elif structure=="parent" or other_features==[[]]:
+                    model.add_edge('f' + str(j), 'b')
+                elif structure=="both":
+                    model.add_edge('f' + str(j), 'b')
+                    model.add_edge('b', 'c' + str(j))
 
         test_data=crossed[cross]
         train_data=pd.DataFrame()
@@ -69,19 +87,32 @@ def model(features,all_smells,properties,len_bs,len_f,f_number,accuracy,diff_pre
         predict_data = test_data.copy()
 
         delete=[]
+        delete_c=[]
         error_res=[]
         if f_number==[]:
             for f in range(len_f):
                 if (train_data['f'+str(f)] == 0).all() or (train_data['f'+str(f)] == 1).all():
                     delete.append(f)
+                if structure=="both":
+                    if (train_data['c'+str(f)] == 0).all() or (train_data['c'+str(f)] == 1).all():
+                        delete_c.append(f)
         else:
             for f in f_number:
                 if (train_data['f'+str(f)] == 0).all() or (train_data['f'+str(f)] == 1).all():
                     delete.append(f)
+                if structure=="both":
+                    if (train_data['c'+str(f)] == 0).all() or (train_data['c'+str(f)] == 1).all():
+                        delete_c.append(f)
+
         for item in delete:
             del train_data['f'+str(item)]
             del predict_data['f' + str(item)]
             model.remove_node('f'+str(item))
+
+        for item in delete_c:
+            del train_data['c'+str(item)]
+            del predict_data['c' + str(item)]
+            model.remove_node('c'+str(item))
         #if all fs are deleted or predict has no value
         if len(train_data.columns)==1 or predict_data.empty:
             continue
