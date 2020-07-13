@@ -1,9 +1,14 @@
 from parse import *
+from parse2 import *
 from counterOfRelation import*
 
-def input_(xmi,rel):
+def input_(xmi,rel,type):
 
-	relation, classList, packageList, packageRelation=parseXMI(xmi)
+	if type == "1.2":
+		#relation, classList, packageList, packageRelation=parseXMI(xmi)
+		relation, classList, packageList, packageRelation = [],[],[],[]
+	elif type == "2":
+		relation, classList, packageList, packageRelation = parseXMI2(xmi)
 
 	allRelFunc, counterOfRel=counterOfRelation(rel)
 

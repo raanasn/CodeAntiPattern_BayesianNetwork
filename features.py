@@ -57,8 +57,8 @@ def get_features(rel,class_properties,wb):
 
 	#Bad Smells
 	#GodCLass - name of the classes with smell
-	badsmells=[0,0,0]
-	for item in range(1,4):
+	badsmells=[0,0,0,0]
+	for item in range(0,4):
 		sheet = wb.sheet_by_index(item)
 		for row_num in range(sheet.nrows):
 			row_value = sheet.row_values(row_num)

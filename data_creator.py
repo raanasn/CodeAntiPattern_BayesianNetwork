@@ -4,19 +4,26 @@ from features import *
 import xlrd
 import pickle
 
-xmifiles=['freemindt src a 1.2 xmi.xmi','jag 6.1 source xmi.xmi','jgraphsrc a 1.2 xmi.xmi','Junit1.2.xmi']
+'''xmifiles=['freemindt src a 1.2 xmi.xmi','jag 6.1 source xmi.xmi','jgraphsrc a 1.2 xmi.xmi','Junit1.2.xmi']
 relfiles=['freemindREL.txt','Jag.txt','JGraph.txt','Junit.txt']
 excelfiles=["Freemind.xlsx",'Jag.xlsx','JGraph.xlsx','Junit.xlsx']
-names=["_freemind","_jag",'_jgraph','_junit']
+names=["_freemind","_jag",'_jgraph','_junit']'''
 
-for xmi_fil,rel_fil,excel_fil,nam in zip(xmifiles,relfiles,excelfiles,names):
+#parse2 dar input va tedade bad smell wa sheet dar features
+xmifiles=['freemindt src a 1.2 xmi.xmi','jedit 4.5 xmi.xmi','argo master xmi.xmi']
+relfiles=['freemindREL.txt','jedit rel.txt','argo rel.txt']
+excelfiles=["freemind new.xlsx","jedit new.xlsx","argo new.xlsx"]
+names=["_freemind","_jedit",'_argo']
+xmi_types=["1.2","2","2"]
+
+for xmi_fil,rel_fil,excel_fil,nam,xmi_type in zip(xmifiles,relfiles,excelfiles,names,xmi_types):
 	xmi_file="Input/"+xmi_fil
 	rel_file="Input/"+rel_fil
 	excel_file="Input/"+excel_fil
 	name=nam
 
 	#Reading the input files
-	rels, classes =input_(xmi_file,rel_file)
+	rels, classes =input_(xmi_file,rel_file,xmi_type)
 	smells = xlrd.open_workbook(excel_file)
 	class_objects=[]
 
