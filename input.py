@@ -5,8 +5,7 @@ from counterOfRelation import*
 def input_(xmi,rel,type):
 
 	if type == "1.2":
-		#relation, classList, packageList, packageRelation=parseXMI(xmi)
-		relation, classList, packageList, packageRelation = [],[],[],[]
+		relation, classList, packageList, packageRelation= parseXMI(xmi)
 	elif type == "2":
 		relation, classList, packageList, packageRelation = parseXMI2(xmi)
 

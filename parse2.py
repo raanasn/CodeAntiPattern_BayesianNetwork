@@ -1,6 +1,5 @@
 from xml.dom import minidom
 
-#######################################Raana boro samte package wa az class_id estefade kon wa baad check kon
 def parseXMI2(my_file):
     classList = []
     class_ids=[]
@@ -61,7 +60,6 @@ def parseXMI2(my_file):
                 classList[i].append(dam / float(ope_count + att_count))
             except:
                 classList[i].append(0)
-            dit = 0
             old_dit=0
             # ids of classes in relations
             list_c = []
@@ -71,6 +69,7 @@ def parseXMI2(my_file):
                         list_c.append(c.getAttribute('xmi:id'))
             class_ids.append(list_c)
             for rel_id in list_c:
+                dit=0
                 next_child = rel_id
                 for element in xmldoc.getElementsByTagName("uml:DiagramElement"):
                     if str(element.getAttribute('preferredShapeType')) == "Generalization":
@@ -80,7 +79,7 @@ def parseXMI2(my_file):
                             next_child = str(element.getAttribute('toDiagramElement'))
                 if dit>old_dit:
                     old_dit=dit
-                    # print "END ", next_child'''
+                    # print "END ", next_child
             classList[i].append(old_dit)
             att_count = 0
             ope_count = 0
@@ -204,6 +203,17 @@ def parseXMI2(my_file):
             if package_id in item:
                 cp = cp + 1
         classList[i].append(cp)
+
+    for one_rel in relation:
+        for id_iterator in range(len(class_ids)):
+            if one_rel[1] in class_ids[id_iterator]:
+                one_rel[1]=classList[id_iterator][0]
+                break
+        for id_iterator in range(len(class_ids)):
+            if one_rel[2] in class_ids[id_iterator]:
+                one_rel[2] = classList[id_iterator][0]
+                break
+
     return relation, classList, packageList, new_packrel
 
 

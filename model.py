@@ -16,7 +16,7 @@ def model(features,all_smells,properties,len_bs,len_f,f_number,accuracy,split,st
     if properties=="equal":
         values = pd.DataFrame(data={'b': all_smells})
     else:
-        values=pd.DataFrame(data={'b0': all_smells[0],'b1': all_smells[1],'b2':all_smells[2]})
+        values=pd.DataFrame(data={'b0': all_smells[0],'b1': all_smells[1],'b2':all_smells[2],'b3':all_smells[3]})
 
     if f_number!=[]:
         for i,j in zip(f_number,range(len(features))):
@@ -121,8 +121,8 @@ def model(features,all_smells,properties,len_bs,len_f,f_number,accuracy,split,st
             predict_data.drop(['b'], axis=1, inplace=True)
             test_data = test_data[['b']]
         else:
-            predict_data.drop(['b0', 'b1', 'b2'], axis=1, inplace=True)
-            test_data = test_data[['b0', 'b1', 'b2']]
+            predict_data.drop(['b0', 'b1', 'b2','b3'], axis=1, inplace=True)
+            test_data = test_data[['b0', 'b1', 'b2','b3']]
         model.fit(train_data)
 
         y_pred = model.predict(predict_data)

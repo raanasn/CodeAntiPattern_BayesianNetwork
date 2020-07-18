@@ -5,15 +5,14 @@ from output import *
 
 def test_data(name,len_f,diff_precent,accuracy,f_number,properties,split,sheet,structure):#len_f=special range, f_number=special f
     #!!!f_len is in the first loop written with hand (9)
-    #!!!len_bs is written with hand
-    len_bs = 3
+    #!!!len_bs and all_smells is written with hand
+    len_bs = 4
     other_structure = []
     #Reading Data
     class_objects = pickle.load(open("classes"+name+".pkl", "rb"))
-
     #Making data ready for Panda
     all_features=[]
-    all_smells=[[],[],[]]
+    all_smells=[[],[],[],[]]
     for class_ in class_objects:
        kasr=0
        zarib=[]
@@ -140,6 +139,8 @@ def test_data(name,len_f,diff_precent,accuracy,f_number,properties,split,sheet,s
             elif structure == "both":
                 other_structure = test_data(name, len_f, diff_precent, accuracy, f_number, properties, split, sheet,"child2")
             if structure!="child2":
+                if len(other_structure)==0:
+                    other_structure=[[]]*len_bs
                 res.append(model(equal_f[number], equal_smells[number], properties, len_bs, len_f, f_number, accuracy,split,structure,other_structure[number]))
         if structure=="child2":
             return child_feature
