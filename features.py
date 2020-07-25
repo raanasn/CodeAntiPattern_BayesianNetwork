@@ -45,7 +45,7 @@ def get_features(rel,class_properties,wb):
 	nam=class_properties[7]
 	
 	#CP
-	cp=class_properties[9]
+	#cp=class_properties[9]
 	
 	#cycle
 	cycle=0
@@ -63,13 +63,14 @@ def get_features(rel,class_properties,wb):
 		for row_num in range(sheet.nrows):
 			row_value = sheet.row_values(row_num)
 			for r in row_value:
-				if class_properties[1] == r:
-					badsmells[item-1]=1
+				r_=r.split('.')
+				if class_properties[1] == r or class_properties[1]==r[:-1] or class_properties[1]==r[:-2] or class_properties[1] == r_[-1] or class_properties[1]==r_[-1][:-1] or class_properties[1]==r_[-1][:-2]:
+					badsmells[item]=1
 					break
-			if badsmells[item-1]==1:
+			if badsmells[item]==1:
 				break
 	
-	#print("AMW, DIT, NOM, LCOM, REL, DAM ,NAM, CP, CYCLE, BADSMELLS")
+	#print("AMW, DIT, NOM, LCOM, REL, DAM ,NAM, CYCLE, BADSMELLS")
 			
-	features=[amw,dit,nom,lcom,relation,dam,nam,cp,cycle,badsmells]
+	features=[amw,dit,nom,lcom,relation,dam,nam,cycle,badsmells]
 	return features

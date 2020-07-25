@@ -28,6 +28,7 @@ def excel(name,f_number, diff_percent,split,len_bs,res,sheet):
         ws['H' + str(l)] = '=' +item+'(H'+str(r-5)+':H' + str(r - 1) + ')'
         ws['J' + str(l)] = '=' + item + '(J' + str(r - 5) + ':J' + str(r - 1) + ')'
         ws['K' + str(l)] = '=' +item+'(K'+str(r-5)+':K' + str(r - 1) + ')'
+        #if 4 smells
         ws['M' + str(l)] = '=' + item + '(M' + str(r - 5) + ':M' + str(r - 1) + ')'
         ws['N' + str(l)] = '=' + item + '(N' + str(r - 5) + ':N' + str(r - 1) + ')'
     wb.save("Input/"+name+".xlsx")
@@ -45,6 +46,11 @@ def color(name,sheet_range):
         row_min = [0, 0, 0, 0, 0, 0,0,0]
         row_max = [0, 0, 0, 0, 0, 0,0,0]
         col = ['D', 'E', 'G', 'H', 'J', 'K','M','N']
+        '''min = [1, 1, 1, 1, 1, 1]
+        max = [0, 0, 0, 0, 0, 0]
+        row_min = [0, 0, 0, 0, 0, 0]
+        row_max = [0, 0, 0, 0, 0, 0]
+        col = ['D', 'E', 'G', 'H', 'J', 'K', 'M', 'N']'''
         #LastRow = xw.Range('A1').last_cell.row_max
         for i in range(9,100,8):
             for c in range(len(col)):

@@ -4,15 +4,24 @@ from model import *
 from output import *
 
 def test_data(name,len_f,diff_precent,accuracy,f_number,properties,split,sheet,structure):#len_f=special range, f_number=special f
-    #!!!f_len is in the first loop written with hand (9)
-    #!!!len_bs and all_smells is written with hand
+    #!!!featre length is in the first loop written with hand (8)
+    #!!!len_bs is written with hand
+
     len_bs = 4
+    all_smells = []
+    all_smells=[list() for x in range(len_bs)]
     other_structure = []
     #Reading Data
     class_objects = pickle.load(open("classes"+name+".pkl", "rb"))
+    '''alaki_godclass=0
+    alaki_dataclass=0
+    alaki_featureenvy=0
+    for alaki in class_objects:
+        alaki_godclass+=alaki.features[8][0]
+        alaki_dataclass+=alaki.features[8][1]
+        alaki_featureenvy += alaki.features[8][2]'''
     #Making data ready for Panda
     all_features=[]
-    all_smells=[[],[],[],[]]
     for class_ in class_objects:
        kasr=0
        zarib=[]
@@ -20,7 +29,7 @@ def test_data(name,len_f,diff_precent,accuracy,f_number,properties,split,sheet,s
        if properties=="smells":
            flag=False
            for s in range(len_bs):
-               if class_.features[9][s]==1:
+               if class_.features[8][s]==1:#THIS AND
                    flag=True
            if flag==False:
                continue
@@ -32,16 +41,16 @@ def test_data(name,len_f,diff_precent,accuracy,f_number,properties,split,sheet,s
        for parent in bayesian_structure:
           kasr=parent[1].weight + kasr #has to go one round alone
           zarib.append(parent[1].weight)
-       for i in range(9):#only this one
+       for i in range(8):# this AND
           foo=0
           for p,z in zip(bayesian_structure,zarib):
              foo=(p[0].features[i]*z/kasr)+foo
           f.append(foo)
-       if class_.features[8] == 1:#cycle (its his issue not his parents or childs)
-           f[8]=1
+       if class_.features[7] == 1:#cycle (its his issue not his parents or childs) THIS AND
+           f[7]=1
        all_features.append(f)
        for bs in range(len_bs):
-            all_smells[bs].append(class_.features[9][bs])
+           all_smells[bs].append(class_.features[8][bs]) #This END
 
     sum_=[sum(i) for i in all_smells]
     equal_features = []
@@ -140,7 +149,7 @@ def test_data(name,len_f,diff_precent,accuracy,f_number,properties,split,sheet,s
                 other_structure = test_data(name, len_f, diff_precent, accuracy, f_number, properties, split, sheet,"child2")
             if structure!="child2":
                 if len(other_structure)==0:
-                    other_structure=[[]]*len_bs
+                    other_structure=[list() for x in range(len_bs)]
                 res.append(model(equal_f[number], equal_smells[number], properties, len_bs, len_f, f_number, accuracy,split,structure,other_structure[number]))
         if structure=="child2":
             return child_feature

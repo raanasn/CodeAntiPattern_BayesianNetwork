@@ -1,0 +1,8 @@
+pandas==1.0.1
+numpy==1.18.3
+pgmpy==0.1.10
+sklearn==0.0
+scikit-learn==0.22.2.post1
+openpyxl==3.0.3
+xlwings==0.19.2
+xlrd==1.2.0

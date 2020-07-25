@@ -192,7 +192,7 @@ def parseXMI2(my_file):
         if i not in new_packrel:
             new_packrel.append(i)
 
-    for i in range(len(classList)):
+    '''for i in range(len(classList)):
         cp = 0
         package_id = ""
         for item in packageList:
@@ -202,7 +202,7 @@ def parseXMI2(my_file):
         for item in new_packrel:
             if package_id in item:
                 cp = cp + 1
-        classList[i].append(cp)
+        classList[i].append(cp)'''
 
     for one_rel in relation:
         for id_iterator in range(len(class_ids)):
