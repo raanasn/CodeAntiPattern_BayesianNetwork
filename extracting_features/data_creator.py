@@ -12,16 +12,11 @@ excelfiles=["Freemind.xlsx",'Jag.xlsx','JGraph.xlsx','Junit.xlsx']
 names=["_freemind","_jag",'_jgraph','_junit']'''
 
 #parse2 dar input va tedade bad smell wa sheet dar features
-'''xmifiles=['freemindt src a 1.2 xmi.xmi','jedit 4.5 xmi.xmi','argo master xmi.xmi']
+xmifiles=['freemindt src a 1.2 xmi.xmi','jedit 4.5 xmi.xmi','argo master xmi.xmi']
 relfiles=['freemindREL.txt','jedit rel.txt','argo rel.txt']
 excelfiles=["freemind new.xlsx","jedit new.xlsx","argo new.xlsx"]
 names=["_freemind_new","_jedit",'_argo']
-xmi_types=["1.2","2","2"]'''
-xmifiles=['argo master xmi.xmi']
-relfiles=['argo rel.txt']
-excelfiles=["argo new.xlsx"]
-names=['_argo']
-xmi_types=["2"]
+xmi_types=["1.2","2","2"]
 
 for xmi_fil,rel_fil,excel_fil,nam,xmi_type in zip(xmifiles,relfiles,excelfiles,names,xmi_types):
 	xmi_file="Input/"+xmi_fil
